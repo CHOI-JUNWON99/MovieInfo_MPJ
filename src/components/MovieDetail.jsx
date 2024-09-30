@@ -1,8 +1,6 @@
-// src/components/MovieDetail.jsx
 import React from 'react';
 import styled from 'styled-components';
 
-// styled-components 사용하여 스타일 정의
 const Container = styled.div`
   display: flex;
   gap: 20px;

@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { CiSearch } from "react-icons/ci";
+import { CgProfile } from "react-icons/cg";
 
 const StyledNavbar = styled.div`
   display: flex;
@@ -13,7 +14,8 @@ const StyledNavbar = styled.div`
   height: 70px;
   gap: 1rem;
 
-  h1{
+  button{
+    background-color: #000000;
     margin:50px;
     color: red;
   }
@@ -38,10 +40,10 @@ const StyledNavbarButton = styled.button`
 function Navbar() {
     return (
         <StyledNavbar>
-            <h1>NATFLEX</h1>
+            <button><h2>NATFLEX</h2></button>
             <StyledNavbarButton>
-                {/* 여기서 아이콘에 직접 스타일 적용 */}
                 <CiSearch style={{ width: '35px', height: '35px', color: '#f0f4f5' }} />
+                <CgProfile />
             </StyledNavbarButton>
         </StyledNavbar>
     );

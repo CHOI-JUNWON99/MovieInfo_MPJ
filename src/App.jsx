@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Routes, Route, useNavigate } from 'react-router-dom'; // useNavigate 추가
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import MovieCard from './components/MovieCard';
 import MovieDetail from './components/MovieDetail';
 import Navbar from './components/Navbar';
