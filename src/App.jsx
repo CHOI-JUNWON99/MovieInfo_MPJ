@@ -10,6 +10,7 @@ const MovieList = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
+  margin-top: 70px; /* Navbar의 높이만큼 상단에 여백 추가 */
 `;
 
 const App = () => {

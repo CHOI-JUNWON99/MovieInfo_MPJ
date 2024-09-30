@@ -5,6 +5,7 @@ const Container = styled.div`
   display: flex;
   gap: 20px;
   padding: 20px;
+  margin-top: 70px; /* Navbar의 높이만큼 상단에 여백 추가 */
 `;
 
 const Poster = styled.img`
