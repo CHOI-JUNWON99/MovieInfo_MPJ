@@ -6,7 +6,7 @@ import { CgProfile, CgDarkMode } from "react-icons/cg";
 
 const StyledNavbar = styled.div`
   display: flex;
-  justify-content: space-between; /* 좌우로 공간 분배 */
+  justify-content: space-between;
   align-items: center;
   background-color: #000000;
   width: 100%; 
@@ -14,10 +14,10 @@ const StyledNavbar = styled.div`
   position: fixed; 
   top: 0; 
   left: 0; 
-  z-index: 1000; /* 다른 요소보다 위에 표시 */
+  z-index: 1000;
 `;
 
-const StyledLink = styled(Link)`
+const StyledLink = styled(Link)` //Link는 컴포넌트라 ()로 감싸줘야함
   text-decoration: none;
 
   h2 {
@@ -26,28 +26,31 @@ const StyledLink = styled(Link)`
   }
 `;
 
-const StyledNavbarButton = styled.div`
+const StyledNavbarButton = styled.button`
   display: flex;
   gap: 15px; 
   margin-right: 70px; 
+  background-color: #000000;
+  cursor: pointer;
+  border: none;
 `;
 
-function Navbar() {
-    const handleScrollToTop = () => {
-        window.scrollTo(0, 0);
-    };
-    return (
-        <StyledNavbar>
-            <StyledLink to="/" onClick={handleScrollToTop}>
-                <h2>NATFLIX</h2>
-            </StyledLink>
-            <StyledNavbarButton>
-                <CgDarkMode style={{ width: '35px', height: '35px', color: '#f0f4f5' }} />
-                <CiSearch style={{ width: '35px', height: '35px', color: '#f0f4f5' }} />
-                <CgProfile style={{ width: '35px', height: '35px', color: '#f0f4f5' }} />
-            </StyledNavbarButton>
-        </StyledNavbar >
-    );
+function Navbar({ setDarkMode }) {
+  const handleScrollToTop = () => {
+    window.scrollTo(0, 0);
+  };
+  return (
+    <StyledNavbar>
+      <StyledLink to="/" onClick={handleScrollToTop}>
+        <h2>NATFLIX</h2>
+      </StyledLink>
+      <StyledNavbarButton>
+        <CgDarkMode style={{ width: '35px', height: '35px', color: '#f0f4f5' }} onClick={() => setDarkMode((prev) => !prev)} />
+        <CiSearch style={{ width: '35px', height: '35px', color: '#f0f4f5' }} />
+        <CgProfile style={{ width: '35px', height: '35px', color: '#f0f4f5' }} />
+      </StyledNavbarButton>
+    </StyledNavbar >
+  );
 }
 
 export default Navbar;

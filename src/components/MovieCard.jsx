@@ -4,14 +4,21 @@ import styled from 'styled-components';
 const Card = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* 위, 아래 요소 간의 공간 분배 */
-  border: 1px solid #ddd;
+  justify-content: space-between;
+  //border: 1px solid #ddd;
+  //background-color: #ffffff;
+  color: #686666;
   border-radius: 8px;
   padding: 10px;
   margin: 10px;
   width: 200px;
   text-align: center;
   cursor: pointer;
+
+  :hover {
+    transform: scale(1.1); // hover 시 크기 증가 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); // 그림자 추가
+  }
 `;
 
 const Poster = styled.img`
@@ -21,24 +28,18 @@ const Poster = styled.img`
 `;
 
 const Title = styled.h3`
-  font-size: 1.2em;
+  font-size: 1.1em;
   margin: 10px 0;
   flex-grow: 1;
 `;
 
-const Rating = styled.p`
-  font-size: 0.9em;
-  color: #888;
-`;
-
-const MovieCard = ({ title, poster, rating, onClick }) => {
-    return (
-        <Card onClick={onClick}>
-            <Poster src={`https://image.tmdb.org/t/p/w500${poster}`} alt={`${title} 포스터`} />
-            <Title>{title}</Title>
-            <Rating>평점: {rating}</Rating>
-        </Card>
-    );
+const MovieCard = ({ title, poster, onClick }) => {
+  return (
+    <Card onClick={onClick}>
+      <Poster src={`https://image.tmdb.org/t/p/w500${poster}`} alt={`${title} 포스터`} />
+      <Title>{title}</Title>
+    </Card>
+  );
 };
 
 export default MovieCard;
