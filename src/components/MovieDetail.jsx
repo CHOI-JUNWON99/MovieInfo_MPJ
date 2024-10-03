@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import MovieCard from './MovieCard';
+import { useNavigate, useParams } from 'react-router-dom'; // useParams로 URL 파라미터 사용
 
 const Container = styled.div`
   position: relative;
@@ -97,15 +98,33 @@ const MoviesRecommand = styled.div`
   justify-content: space-around;
 `;
 
-const MovieDetail = ({ movie, onClick, similarMovies }) => {
+const MovieDetail = ({ movies, genres, darkMode, setDarkMode }) => {
   // movie가 undefined일 경우 로딩 처리 또는 빈 상태 처리
+  const { movieId } = useParams();
+  const movie = movies.find(m => m.id === parseInt(movieId));
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode');
+    if (savedDarkMode !== null) {
+      setDarkMode(JSON.parse(savedDarkMode));
+    }
+  }, [setDarkMode]);
+
   if (!movie) {
     return <p>영화 정보를 불러오는 중입니다...</p>;
   }
 
+  const genreNames = movie.genre_ids.map(id => {
+    const genre = genres.find(g => g.id === id);
+    return genre ? genre.name : 'Unknown';
+  }).join(', ');
+
+
+
   return (
     <Container>
-      <Backdrop $backdropPath={movie.belongs_to_collection.backdrop_path} />
+      <Backdrop $backdropPath={movie.backdrop_path} />
 
       <Poster
         src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
@@ -118,17 +137,9 @@ const MovieDetail = ({ movie, onClick, similarMovies }) => {
           <Rating>{movie.vote_average} / 10</Rating>
         </TitleRating>
 
-        <Genre>
-          {movie.genres && movie.genres.length > 0 ? (
-            movie.genres.map((genre, index) => (
-              <span key={index}>{genre.name} </span>
-            ))
-          ) : (
-            <span>장르 정보 없음</span>
-          )}
-        </Genre>
+        <Genre>{genreNames}</Genre>
 
-        <p>상영시간: {movie.runtime}분</p>
+        <p>Run Time: {movie.runtime}</p>
 
         <Overview>{movie.overview}</Overview>
       </InfoSection>
@@ -136,10 +147,10 @@ const MovieDetail = ({ movie, onClick, similarMovies }) => {
       <MovieSection>
         <Introduce>다른 영화</Introduce>
         <MoviesRecommand>
-          {similarMovies && similarMovies.length > 0 ? (
-            similarMovies.map((similarMovie) => (
+          {movies && movies.length > 0 ? (
+            movies.slice(0, 18).map((similarMovie) => (
               <MovieCard
-                onClick={onClick}
+                onClick={() => navigate(`/MovieDetail/${similarMovie.id}`)}
                 key={similarMovie.id}
                 title={similarMovie.title}
                 poster={similarMovie.poster_path}
