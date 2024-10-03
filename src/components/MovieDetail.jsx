@@ -98,7 +98,7 @@ const MoviesRecommand = styled.div`
   justify-content: space-around;
 `;
 
-const MovieDetail = ({ movies, genres, darkMode, setDarkMode }) => {
+const MovieDetail = ({ movies, setDarkMode }) => {
   // movie가 undefined일 경우 로딩 처리 또는 빈 상태 처리
   const { movieId } = useParams();
   const movie = movies.find(m => m.id === parseInt(movieId));
@@ -115,12 +115,7 @@ const MovieDetail = ({ movies, genres, darkMode, setDarkMode }) => {
     return <p>영화 정보를 불러오는 중입니다...</p>;
   }
 
-  const genreNames = movie.genre_ids.map(id => {
-    const genre = genres.find(g => g.id === id);
-    return genre ? genre.name : 'Unknown';
-  }).join(', ');
-
-
+  const genreNames = movie.genres.map(genre => genre.name).join(', ');
 
   return (
     <Container>
@@ -138,8 +133,7 @@ const MovieDetail = ({ movies, genres, darkMode, setDarkMode }) => {
         </TitleRating>
 
         <Genre>{genreNames}</Genre>
-
-        <p>Run Time: {movie.runtime}</p>
+        <p>상영시간: {movie.runtime}분</p>
 
         <Overview>{movie.overview}</Overview>
       </InfoSection>

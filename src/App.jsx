@@ -26,13 +26,11 @@ const GlobalStyle = createGlobalStyle`
 
 const App = () => {
   const [movies, setMovies] = useState([]);
-
   const [darkMode, setDarkMode] = useState(false);
-  const [genres, setGenres] = useState([]);
 
   const navigate = useNavigate();
 
-  useEffect(() => { // TMDB API
+  useEffect(() => { // Popular API
     const fetchMovies = async () => {
       const options = {
         method: 'GET',
@@ -47,15 +45,15 @@ const App = () => {
         const data = await response.json();
         setMovies(data.results); // API에서 받은 영화 목록 데이터를 상태로 저장
       } catch (error) {
-        console.error('Error fetching popular movies:', error);
+        console.error('Error fetching Popular API:', error);
       }
     };
 
     fetchMovies();
   }, []);
 
-  useEffect(() => { //장르API
-    const fetchGenres = async () => {
+  useEffect(() => { // Details API
+    const fetchMovieDetails = async (movieId) => {
       const options = {
         method: 'GET',
         headers: {
@@ -64,16 +62,27 @@ const App = () => {
         }
       };
       try {
-        const response = await fetch('https://api.themoviedb.org/3/genre/movie/list?language=ko', options);
+        const response = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`, options);
         const data = await response.json();
-        setGenres(data.genres); // 장르 데이터 상태에 저장
-      }
-      catch (error) {
-        console.error('Error fetching genres:', error);
+        return data; // 영화 세부 정보 반환
+      } catch (error) {
+        console.error('Error fetching Details API:', error);
       }
     };
-    fetchGenres();
-  }, [])
+
+    // 영화 목록을 순회하면서 각각의 상세 정보를 가져옵니다.
+    const fetchAllDetails = async () => {
+      const detailedMovies = await Promise.all(movies.map(async (movie) => {
+        const details = await fetchMovieDetails(movie.id);
+        return { ...movie, ...details }; // 영화의 상세 정보를 결합
+      }));
+      setMovies(detailedMovies); // 상세 정보를 결합한 영화 목록을 다시 설정
+    };
+
+    if (movies.length > 0) {
+      fetchAllDetails();
+    }
+  }, [movies]);
 
   const handleMovieClick = (movie) => {
     navigate(`/MovieDetail/${movie.id}`);
@@ -121,7 +130,6 @@ const App = () => {
             element={
               <MovieDetail
                 movies={movies}
-                genres={genres}
                 darkMode={darkMode}
                 setDarkMode={setDarkMode}
               />
