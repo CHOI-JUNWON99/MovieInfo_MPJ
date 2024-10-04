@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
 import { CiSearch } from "react-icons/ci";
 import { CgProfile, CgDarkMode } from "react-icons/cg";
+import { AiOutlineClose } from "react-icons/ai";
 
 const StyledNavbar = styled.div`
   display: flex;
@@ -35,32 +36,83 @@ const StyledNavbarButton = styled.div`
   border: none;
 `;
 
+const SearchContainer = styled.div`
+  position: fixed;
+  top: 70px;
+  left: 0; 
+  width: 100%;
+  display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
+  align-items: center;
+  background-color: #111;
+  padding: 0 20px;
+`;
 
-function Navbar({ setDarkMode }) {
+const SearchInput = styled.input`
+  flex: 1;
+  margin-right: 40px;
+  padding: 10px;
+  border: none;
+  background-color: #222;
+  color: #f0f4f5;
+  outline: none;
+  border-radius: 5px;
+`;
+
+
+function Navbar({ setDarkMode, onSearch }) {
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearch = () => {
+    setIsSearchOpen(!isSearchOpen);
+    setSearchQuery('');
+  };
+
+  const handleSearchInputChange = (e) => {
+    setSearchQuery(e.target.value);
+    onSearch(e.target.value);
+  };
+
+  const navigate = useNavigate();
 
   const handleScrollToTop = () => {
     window.scrollTo(0, 0);
   };
 
-  const navigate = useNavigate();
-
   return (
-    <StyledNavbar>
-      <StyledLink to="/" onClick={handleScrollToTop}>
-        <h2>NATFLIX</h2>
-      </StyledLink>
-      <StyledNavbarButton>
-        <button>해당 버튼은 과제진행을 위한 임시버튼입니다.</button>
-        <button onClick={() => navigate('/Login')}>Login</button>
-        <button onClick={() => navigate('/Signup')}>Signup</button>
-        <button onClick={() => navigate('/Profile')}>Profile</button>
-      </StyledNavbarButton>
-      <StyledNavbarButton>
-        <CgDarkMode style={{ width: '35px', height: '35px', color: '#f0f4f5' }} onClick={() => setDarkMode((prev) => !prev)} />
-        <CiSearch style={{ width: '35px', height: '35px', color: '#f0f4f5' }} />
-        <CgProfile style={{ width: '35px', height: '35px', color: '#f0f4f5' }} />
-      </StyledNavbarButton>
-    </StyledNavbar >
+    <>
+      <StyledNavbar>
+        <StyledLink to="/" onClick={handleScrollToTop}>
+          <h2>NATFLIX</h2>
+        </StyledLink>
+        <StyledNavbarButton>
+          <button>해당 버튼은 과제진행을 위한 임시버튼입니다.</button>
+          <button onClick={() => navigate('/Login')}>Login</button>
+          <button onClick={() => navigate('/Signup')}>Signup</button>
+          <button onClick={() => navigate('/Profile')}>Profile</button>
+        </StyledNavbarButton>
+        <StyledNavbarButton>
+          <CgDarkMode style={{ width: '35px', height: '35px', color: '#f0f4f5' }} onClick={() => setDarkMode(prev => !prev)} />
+
+          {isSearchOpen ? (
+            <AiOutlineClose style={{ width: '35px', height: '35px', color: '#f0f4f5' }} onClick={handleSearch} />
+          ) : (
+            <CiSearch style={{ width: '35px', height: '35px', color: '#f0f4f5' }} onClick={handleSearch} />
+          )}
+
+          <CgProfile style={{ width: '35px', height: '35px', color: '#f0f4f5' }} />
+        </StyledNavbarButton>
+      </StyledNavbar >
+
+      <SearchContainer $isOpen={isSearchOpen}>
+        <SearchInput
+          type="text"
+          placeholder="영화를 찾아보세요.."
+          value={searchQuery}
+          onChange={handleSearchInputChange}
+        />
+      </SearchContainer>
+    </>
   );
 }
 

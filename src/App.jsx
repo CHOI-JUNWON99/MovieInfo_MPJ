@@ -12,7 +12,7 @@ const StyledMovieList = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-  margin-top: 70px;
+  margin-top: 90px;
 `;
 
 const GlobalStyle = createGlobalStyle`
@@ -27,6 +27,7 @@ const GlobalStyle = createGlobalStyle`
 const App = () => {
   const [movies, setMovies] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
+  const [filteredMovies, setFilteredMovies] = useState([]);
 
   const navigate = useNavigate();
 
@@ -44,6 +45,7 @@ const App = () => {
         const response = await fetch('https://api.themoviedb.org/3/movie/popular?language=ko-KR&page=1', options);
         const data = await response.json();
         setMovies(data.results); // API에서 받은 영화 목록 데이터를 상태로 저장
+        setFilteredMovies(data.results); // 초기엔 모든 영화 표시
       } catch (error) {
         console.error('Error fetching Popular API:', error);
       }
@@ -51,6 +53,18 @@ const App = () => {
 
     fetchMovies();
   }, []);
+
+  // 검색 처리 함수
+  const handleSearch = (searchQuery) => {
+    if (searchQuery) {
+      const filtered = movies.filter(movie =>
+        movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredMovies(filtered);
+    } else {
+      setFilteredMovies(movies); // 검색어가 없으면 전체 목록
+    }
+  };
 
   useEffect(() => { // Details API
     const fetchMovieDetails = async (movieId) => {
@@ -104,7 +118,7 @@ const App = () => {
   return (
     <>
       <GlobalStyle darkMode={darkMode} />
-      <Navbar setDarkMode={setDarkMode} />
+      <Navbar setDarkMode={setDarkMode} onSearch={handleSearch} />
       <main>
         <Routes>
           {/* 영화 목록 페이지 */}
@@ -112,7 +126,7 @@ const App = () => {
             path="/"
             element={
               <StyledMovieList>
-                {movies.map((movie) => (
+                {filteredMovies.map((movie) => (
                   <MovieCard
                     key={movie.id}
                     title={movie.title}

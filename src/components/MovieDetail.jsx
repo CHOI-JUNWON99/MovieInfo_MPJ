@@ -1,163 +1,67 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
-import MovieCard from './MovieCard';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { CiSearch } from "react-icons/ci";
+import { CgProfile, CgDarkMode } from "react-icons/cg";
 
-const Container = styled.div`
-  position: relative;
-  display: flex;
-  gap: 20px;
-  padding: 20px;
-  margin-top: 70px; 
-  color: #fff;
-`;
-
-// 배경 이미지 (blur 처리)
-const Backdrop = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url(${props => `https://image.tmdb.org/t/p/original${props.$backdropPath}`}) !important;
-  background-size: cover;
-  background-position: center;
-  filter: blur(10px); //10px정도의 흐림효과 적용
-  opacity: 0.9; //50프로로 불투명도 조절
-  z-index: 0.9;
-`;
-
-const Poster = styled.img`
-  width: 300px;
-  height: auto;
-  border-radius: 10px;
-  z-index: 1;
-`;
-
-const InfoSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  max-width: 600px;
-  z-index: 1;
-`;
-
-const TitleRating = styled.div`
+const StyledNavbar = styled.div`
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  background-color: #000000;
+  width: 100%; 
+  height: 70px;
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  z-index: 1000;
 `;
 
-const Title = styled.h2`
-  font-size: 1.2em;
+const StyledLink = styled(Link)` //Link는 컴포넌트라 ()로 감싸줘야함
+  text-decoration: none;
+
+  h2 {
+    color: red;
+    margin-left: 30px;
+  }
 `;
 
-const Rating = styled.span`
-  font-size: 0.9em;
-  color: #ffa500;
-`;
-
-const Genre = styled.div`
-  background-color: #f3e7e7;
-  padding: 10px;
-  border-radius: 5px;
-  color: #000; 
-`;
-
-const Overview = styled.p`
-  line-height: 1.6;
-`;
-
-const MovieSection = styled.div`
+const StyledNavbarButton = styled.div`
   display: flex;
-  position: absolute;
-  color: black;
-  margin-top: 500px;
+  gap: 15px; 
+  margin-right: 70px; 
+  background-color: #000000;
+  cursor: pointer;
+  border: none;
 `;
 
-const Introduce = styled.p`
-    //border: none;
-    //border-radius: 5px;
-    //background-color: #f1f1f1;
-    display: flex;
-    position: absolute;
-    width: 110px;
-    //height: 40px;
-    //justify-content: center;
-    //text-align: center;
-    //justify-items: center;
-    margin-left: 10px;
-    color: #686666;
-    font-size: 1.5em;
-`;
 
-const MoviesRecommand = styled.div`
-  margin-top: 60px;
-  display: flex;
-  flex-wrap: wrap; 
-  color:black;
-  justify-content: space-around;
-`;
+function Navbar({ setDarkMode }) {
 
-const MovieDetail = ({ movies, setDarkMode }) => {
-  // movie가 undefined일 경우 로딩 처리 또는 빈 상태 처리
-  const { movieId } = useParams();
-  const movie = movies.find(m => m.id === parseInt(movieId));
+  const handleScrollToTop = () => {
+    window.scrollTo(0, 0);
+  };
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode));
-    }
-  }, [setDarkMode]);
-
-  if (!movie) {
-    return <p>영화 정보를 불러오는 중입니다...</p>;
-  }
-
-  const genreNames = movie.genres ? movie.genres.map((el) => el.name).join(', ') : "장르 정보 없음";
-
   return (
-    <Container>
-      <Backdrop $backdropPath={movie.backdrop_path} />
-
-      <Poster
-        src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-        alt={`${movie.title} 포스터`}
-      />
-
-      <InfoSection>
-        <TitleRating>
-          <Title>{movie.title}</Title>
-          <Rating>{movie.vote_average} / 10</Rating>
-        </TitleRating>
-
-        <Genre>{genreNames}</Genre>
-        <p>상영시간: {movie.runtime}분</p>
-
-        <Overview>{movie.overview}</Overview>
-      </InfoSection>
-
-      <MovieSection>
-        <Introduce>다른 영화</Introduce>
-        <MoviesRecommand>
-          {movies && movies.length > 0 ? (
-            movies.slice(0, 18).map((similarMovie) => (
-              <MovieCard
-                onClick={() => navigate(`/MovieDetail/${similarMovie.id}`)}
-                key={similarMovie.id}
-                title={similarMovie.title}
-                poster={similarMovie.poster_path}
-                rating={similarMovie.vote_average}
-              />
-            ))
-          ) : (
-            <p>비슷한 영화 정보가 없습니다</p>
-          )}
-        </MoviesRecommand>
-      </MovieSection>
-    </Container>
+    <StyledNavbar>
+      <StyledLink to="/" onClick={handleScrollToTop}>
+        <h2>NATFLIX</h2>
+      </StyledLink>
+      <StyledNavbarButton>
+        <button>해당 버튼은 과제진행을 위한 임시버튼입니다.</button>
+        <button onClick={() => navigate('/Login')}>Login</button>
+        <button onClick={() => navigate('/Signup')}>Signup</button>
+        <button onClick={() => navigate('/Profile')}>Profile</button>
+      </StyledNavbarButton>
+      <StyledNavbarButton>
+        <CgDarkMode style={{ width: '35px', height: '35px', color: '#f0f4f5' }} onClick={() => setDarkMode((prev) => !prev)} />
+        <CiSearch style={{ width: '35px', height: '35px', color: '#f0f4f5' }} />
+        <CgProfile style={{ width: '35px', height: '35px', color: '#f0f4f5' }} />
+      </StyledNavbarButton>
+    </StyledNavbar >
   );
-};
+}
 
-export default MovieDetail;
+export default Navbar;
