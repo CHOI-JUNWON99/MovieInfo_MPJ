@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import MovieCard from './MovieCard';
-import { useNavigate, useParams } from 'react-router-dom'; // useParams로 URL 파라미터 사용
+import { useNavigate, useParams } from 'react-router-dom';
 
 const Container = styled.div`
   position: relative;
@@ -115,7 +115,7 @@ const MovieDetail = ({ movies, setDarkMode }) => {
     return <p>영화 정보를 불러오는 중입니다...</p>;
   }
 
-  const genreNames = movie.genres.map(genre => genre.name).join(', ');
+  const genreNames = movie.genres ? movie.genres.map((el) => el.name).join(', ') : "장르 정보 없음";
 
   return (
     <Container>
