@@ -1,5 +1,10 @@
-import React from 'react';
+import { supabase } from '@supabase/auth-ui-shared';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+//import { supabase } from './supabase';
+
+
 
 const Container = styled.div`
     display: flex;
@@ -57,19 +62,77 @@ const StyledJoinButton = styled.button`
 
 function Signup() {
 
+    const [email, setEmail] = useState('');
+    const [name, setName] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handleSignup = async (e) => {
+        e.preventDefault();
+        if (password != confirmPassword) {
+            setError('비밀번호가 일치하지 않습니다!');
+            return;
+        }
+
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            name,
+            password
+        })
+
+        if (error) {
+            setError(error.message);
+        } else {
+            navigate('/Login');
+        }
+    }
+
     return (
         <>
             <Container>
-                <LoginForm>
+                <LoginForm onSubmit={handleSignup}>
                     <Title>Signup</Title>
+
+                    {error && <p>{error}</p>}
+
                     <Text>User name</Text>
-                    <StyledInput type="text" placeholder="name" /*value={id}*/></StyledInput>
+                    <StyledInput
+                        type="text"
+                        placeholder="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
+                    />
+
                     <Text>Email</Text>
-                    <StyledInput type="email" placeholder="Email" /*value={id}*/></StyledInput>
+                    <StyledInput
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+
                     <Text>Password</Text>
-                    <StyledInput type="password" placeholder="Password" /*value={pw}*/></StyledInput>
+                    <StyledInput
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
+
                     <Text>Confirm Password </Text>
-                    <StyledInput type="password" placeholder="Password" /*value={pw}*/></StyledInput>
+                    <StyledInput
+                        type="password"
+                        placeholder="Confirm Password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        required
+                    />
+
                     <StyledJoinButton type="submit">Signup</StyledJoinButton>
                 </LoginForm>
             </Container>

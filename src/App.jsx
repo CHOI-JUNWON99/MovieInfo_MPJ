@@ -7,6 +7,11 @@ import Navbar from './components/Navbar';
 import Login from './components/Login'
 import Signup from './components/Signup'
 import Profile from './components/Profile'
+import { debounce } from 'lodash';
+import { createClient } from '@supabase/supabase-js'
+import { Auth } from '@supabase/auth-ui-react'
+import { ThemeSupa } from '@supabase/auth-ui-shared'
+import { supabase } from './components/supabase';
 
 const StyledMovieList = styled.div`
   display: flex;
@@ -24,10 +29,27 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+// const supabaseUrl = 'https://ydutyhdruoqrmifaoxvp.supabase.co'
+// const supabaseKey = import.meta.env.VITE_SUPABASE_KEY;
+// const supabase = createClient(supabaseUrl, supabaseKey)
+
 const App = () => {
   const [movies, setMovies] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
   const [filteredMovies, setFilteredMovies] = useState([]);
+
+  const [session, setSession] = useState(null)
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+    return () => subscription.unsubscribe()
+  }, [])
 
   const navigate = useNavigate();
 
@@ -54,8 +76,8 @@ const App = () => {
     fetchMovies();
   }, []);
 
-  // 검색 처리 함수
-  const handleSearch = (searchQuery) => {
+  // debounce 적용된 검색 처리 함수
+  const handleSearch = debounce((searchQuery) => {
     if (searchQuery) {
       const filtered = movies.filter(movie =>
         movie.title.toLowerCase().includes(searchQuery.toLowerCase())
@@ -64,7 +86,7 @@ const App = () => {
     } else {
       setFilteredMovies(movies); // 검색어가 없으면 전체 목록
     }
-  };
+  }, 500);
 
   useEffect(() => { // Details API
     const fetchMovieDetails = async (movieId) => {
@@ -118,7 +140,7 @@ const App = () => {
   return (
     <>
       <GlobalStyle darkMode={darkMode} />
-      <Navbar setDarkMode={setDarkMode} onSearch={handleSearch} />
+      <Navbar setDarkMode={setDarkMode} onSearch={handleSearch} session={session} />
       <main>
         <Routes>
           {/* 영화 목록 페이지 */}
@@ -146,12 +168,17 @@ const App = () => {
                 movies={movies}
                 darkMode={darkMode}
                 setDarkMode={setDarkMode}
+                session={session}
               />
             }
           />
           <Route path="/Login" element={<Login />} />
           <Route path="/Signup" element={<Signup />} />
-          <Route path="/Profile" element={<Profile />} />
+          <Route
+            path="/Profile"
+            element={
+              session ? <Profile /> : <Login />}
+          />
         </Routes>
       </main>
     </>
