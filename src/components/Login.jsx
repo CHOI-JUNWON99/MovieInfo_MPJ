@@ -70,7 +70,7 @@ const StyledLoginButton = styled.button`
 `;
 
 const StyledKakaoLoginButton = styled.button`
-  background: url("../public/kakao_logo.png") no-repeat center;
+  background: url("/kakao_logo.png") no-repeat center;
   background-size: 240px;
   border: none;
   border-radius: 5px;
