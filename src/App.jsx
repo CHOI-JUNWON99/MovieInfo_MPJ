@@ -6,7 +6,7 @@ import MovieDetail from "./components/MovieDetail";
 import Navbar from "./components/Navbar";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import Favorite from "./components/favorite";
+import Favorite from "./components/Favorite";
 import { debounce } from "lodash";
 import { createClient } from "@supabase/supabase-js";
 import { Auth } from "@supabase/auth-ui-react";
