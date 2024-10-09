@@ -5,7 +5,6 @@ import { supabase } from "./supabase";
 
 const Container = styled.div`
   display: flex;
-  margin-top: 150px;
   justify-content: center;
   justify-items: center;
   align-items: center;
