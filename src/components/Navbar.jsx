@@ -161,9 +161,6 @@ function Navbar({ setDarkMode, onSearch, session, setSession }) {
             {/* 로그인된 경우에만 드롭다운 메뉴 표시 */}
             {session && (
               <DropdownMenu $isOpen={isDropdownOpen}>
-                <DropdownItem onClick={() => navigate("/favorites")}>
-                  즐겨찾기
-                </DropdownItem>
                 <DropdownItem onClick={handleLogout}>로그아웃</DropdownItem>
               </DropdownMenu>
             )}

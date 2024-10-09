@@ -6,7 +6,6 @@ import MovieDetail from "./components/MovieDetail";
 import Navbar from "./components/Navbar";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
-import Favorite from "./components/Favorite";
 import { debounce } from "lodash";
 import { createClient } from "@supabase/supabase-js";
 import { Auth } from "@supabase/auth-ui-react";
@@ -187,10 +186,6 @@ const App = () => {
           />
           <Route path="/Login" element={<Login />} />
           <Route path="/Signup" element={<Signup />} />
-          <Route
-            path="/Favorite"
-            element={session ? <Favorite /> : <Login />}
-          />
         </Routes>
       </main>
     </>
