@@ -1,22 +1,73 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import styled, { createGlobalStyle } from "styled-components";
-import { Routes, Route, useNavigate, useParams } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import MovieCard from "./components/MovieCard";
 import MovieDetail from "./components/MovieDetail";
 import Navbar from "./components/Navbar";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import { debounce } from "lodash";
-import { createClient } from "@supabase/supabase-js";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "./components/supabase";
 
 const StyledMovieList = styled.div`
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-  margin-top: 90px;
+`;
+
+const StyledTop = styled.h1`
+  margin-top: 100px;
+  color: ${({ $darkMode }) => ($darkMode ? "white" : "black")};
+`;
+
+const StyledOtherMovies = styled.h1`
+  color: ${({ $darkMode }) => ($darkMode ? "white" : "black")};
+`;
+
+const StyledTopMovies = styled.div`
+  display: flex;
+  align-items: center;
+  position: relative;
+`;
+
+const MoviesContainer = styled.div`
+  display: flex;
+  overflow-x: scroll;
+  scroll-behavior: smooth;
+  width: 100%;
+  padding: 10px;
+  gap: 10px;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+`;
+
+const ArrowButton = styled.button`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 2rem;
+  color: ${({ $darkMode }) => ($darkMode ? "white" : "black")};
+  z-index: 2;
+  padding: 0 10px;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+const LeftArrow = styled(ArrowButton)`
+  left: 0;
+`;
+
+const RightArrow = styled(ArrowButton)`
+  right: 0;
 `;
 
 const GlobalStyle = createGlobalStyle`
@@ -30,10 +81,27 @@ const GlobalStyle = createGlobalStyle`
 
 const App = () => {
   const [movies, setMovies] = useState([]);
+  const [topMovies, setTopMovies] = useState([]);
+  const [otherMovies, setOtherMovies] = useState([]);
   const [darkMode, setDarkMode] = useState(false);
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [session, setSession] = useState(null);
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const movieListRef = useRef(null);
+
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem("darkMode");
+    if (savedDarkMode !== null) {
+      setDarkMode(JSON.parse(savedDarkMode));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", JSON.stringify(darkMode));
+  }, [darkMode]);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -47,35 +115,64 @@ const App = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    // Popular API
-    const fetchMovies = async () => {
-      const options = {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjNWQ3MjVkZWFiZTE3NzVlZWRlMGZlNzlmODY2MmQxNiIsIm5iZiI6MTcyNzkzODQyNC44Mjg2ODUsInN1YiI6IjY2ZmUzYjM3MTU5MmVmMWJhOTg0Y2NhMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ILRauoYs8ArRqkEwruYhVQGfkiBn600Gc9jY4h2Iz1k",
-        },
-      };
+  const fetchMovies = async (pageNum) => {
+    setIsLoading(true);
 
-      try {
-        const response = await fetch(
-          "https://api.themoviedb.org/3/movie/popular?language=ko-KR&page=1",
-          options
-        );
-        const data = await response.json();
-        setMovies(data.results); // API에서 받은 영화 목록 데이터를 상태로 저장
-        setFilteredMovies(data.results); // 초기엔 모든 영화 표시
-      } catch (error) {
-        console.error("Error fetching Popular API:", error);
-      }
+    const options = {
+      method: "GET",
+      headers: {
+        accept: "application/json",
+        Authorization:
+          "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjNWQ3MjVkZWFiZTE3NzVlZWRlMGZlNzlmODY2MmQxNiIsIm5iZiI6MTcyNzkzODQyNC44Mjg2ODUsInN1YiI6IjY2ZmUzYjM3MTU5MmVmMWJhOTg0Y2NhMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ILRauoYs8ArRqkEwruYhVQGfkiBn600Gc9jY4h2Iz1k",
+      },
     };
 
-    fetchMovies();
+    try {
+      const response = await fetch(
+        `https://api.themoviedb.org/3/movie/popular?language=ko-KR&page=${pageNum}`,
+        options
+      );
+      const data = await response.json();
+
+      if (pageNum === 1) {
+        setTopMovies(data.results.slice(0, 20));
+        if (data.results.length > 20) {
+          setOtherMovies(data.results.slice(20));
+        }
+      } else {
+        setOtherMovies((prevMovies) => [...prevMovies, ...data.results]);
+      }
+    } catch (error) {
+      console.error("Error fetching Popular API:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchMovies(1);
+    fetchMovies(2);
   }, []);
 
-  // debounce 적용된 검색 처리 함수
+  const handleScroll = () => {
+    if (
+      window.innerHeight + document.documentElement.scrollTop + 100 >=
+      document.documentElement.offsetHeight
+    ) {
+      if (!isLoading) {
+        setPage((prevPage) => prevPage + 1);
+        fetchMovies(page + 1);
+      }
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isLoading, page]);
+
   const handleSearch = debounce((searchQuery) => {
     if (searchQuery) {
       const filtered = movies.filter((movie) =>
@@ -83,70 +180,25 @@ const App = () => {
       );
       setFilteredMovies(filtered);
     } else {
-      setFilteredMovies(movies); // 검색어가 없으면 전체 목록
+      setFilteredMovies(movies);
     }
   }, 500);
-
-  useEffect(() => {
-    // Details API
-    const fetchMovieDetails = async (movieId) => {
-      const options = {
-        method: "GET",
-        headers: {
-          accept: "application/json",
-          Authorization:
-            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjNWQ3MjVkZWFiZTE3NzVlZWRlMGZlNzlmODY2MmQxNiIsIm5iZiI6MTcyNzkzODQyNC44Mjg2ODUsInN1YiI6IjY2ZmUzYjM3MTU5MmVmMWJhOTg0Y2NhMiIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.ILRauoYs8ArRqkEwruYhVQGfkiBn600Gc9jY4h2Iz1k",
-        },
-      };
-      try {
-        const response = await fetch(
-          `https://api.themoviedb.org/3/movie/${movieId}?language=ko-KR`,
-          options
-        );
-        const data = await response.json();
-        return data; // 영화 세부 정보 반환
-      } catch (error) {
-        console.error("Error fetching Details API:", error);
-      }
-    };
-
-    // 영화 목록을 순회하면서 각각의 상세 정보를 가져옵니다.
-    const fetchAllDetails = async () => {
-      const detailedMovies = await Promise.all(
-        movies.map(async (movie) => {
-          const details = await fetchMovieDetails(movie.id);
-          return { ...movie, ...details }; // 영화의 상세 정보를 결합
-        })
-      );
-      setMovies(detailedMovies); // 상세 정보를 결합한 영화 목록을 다시 설정
-    };
-
-    if (movies.length > 0) {
-      fetchAllDetails();
-    }
-  }, [movies]);
 
   const handleMovieClick = (movie) => {
     navigate(`/MovieDetail/${movie.id}`);
   };
 
-  //페이지 로드시 다크모드 불러옴
-  useEffect(() => {
-    const savedDarkMode = localStorage.getItem("darkMode");
-    if (savedDarkMode !== null) {
-      setDarkMode(JSON.parse(savedDarkMode)); // boolean으로 변환 후 상태 설정
-    }
-  }, []);
+  const scrollLeft = () => {
+    movieListRef.current.scrollBy({ left: -300, behavior: "smooth" });
+  };
 
-  //다크모드 값 변경시 재저장
-  useEffect(() => {
-    localStorage.setItem("darkMode", JSON.stringify(darkMode));
-  }, [darkMode]);
+  const scrollRight = () => {
+    movieListRef.current.scrollBy({ left: 300, behavior: "smooth" });
+  };
 
   return (
     <>
       <GlobalStyle darkMode={darkMode} />
-
       <Navbar
         setDarkMode={setDarkMode}
         onSearch={handleSearch}
@@ -154,15 +206,42 @@ const App = () => {
         setSession={setSession}
       />
       <main>
+        {/* 경로가 /Login 또는 /Signup이 아닌 경우에만 Top 20을 렌더링 */}
+        {location.pathname === "/" && (
+          <>
+            <StyledTop $darkMode={darkMode}>Top 20</StyledTop>
+            <StyledTopMovies $darkMode={darkMode}>
+              <LeftArrow $darkMode={darkMode} onClick={scrollLeft}>
+                {"<"}
+              </LeftArrow>
+              <MoviesContainer ref={movieListRef}>
+                {topMovies.map((movie, index) => (
+                  <MovieCard
+                    key={movie.id || index}
+                    title={movie.title}
+                    poster={movie.poster_path}
+                    onClick={() => handleMovieClick(movie)}
+                  />
+                ))}
+              </MoviesContainer>
+              <RightArrow $darkMode={darkMode} onClick={scrollRight}>
+                {">"}
+              </RightArrow>
+            </StyledTopMovies>
+            <StyledOtherMovies $darkMode={darkMode}>
+              Other Movies
+            </StyledOtherMovies>
+          </>
+        )}
+
         <Routes>
-          {/* 영화 목록 페이지 */}
           <Route
             path="/"
             element={
               <StyledMovieList>
-                {filteredMovies.map((movie) => (
+                {otherMovies.map((movie, index) => (
                   <MovieCard
-                    key={movie.id}
+                    key={movie.id || index}
                     title={movie.title}
                     poster={movie.poster_path}
                     onClick={() => handleMovieClick(movie)}
@@ -171,13 +250,10 @@ const App = () => {
               </StyledMovieList>
             }
           />
-
-          {/* 영화 상세 페이지 */}
           <Route
             path="/MovieDetail/:movieId"
             element={
               <MovieDetail
-                movies={movies}
                 darkMode={darkMode}
                 setDarkMode={setDarkMode}
                 session={session}

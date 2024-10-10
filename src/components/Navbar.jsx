@@ -4,7 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
 import { CgProfile, CgDarkMode } from "react-icons/cg";
 import { AiOutlineClose } from "react-icons/ai";
-import { supabase } from "./supabase"; // supabase 추가
+import { supabase } from "./supabase";
 
 const StyledNavbar = styled.div`
   display: flex;
@@ -35,6 +35,66 @@ const StyledNavbarButton = styled.div`
   background-color: #000000;
   cursor: pointer;
   border: none;
+
+  @media (max-width: 1440px) {
+    margin-right: 50px;
+    gap: 12px;
+
+    svg {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    margin-right: 40px;
+    gap: 10px;
+
+    svg {
+      width: 30px;
+      height: 30px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    margin-right: 30px;
+    gap: 8px;
+
+    svg {
+      width: 28px;
+      height: 28px;
+    }
+  }
+
+  @media (max-width: 425px) {
+    margin-right: 20px;
+    gap: 5px;
+
+    svg {
+      width: 25px;
+      height: 25px;
+    }
+  }
+
+  @media (max-width: 375px) {
+    margin-right: 15px;
+    gap: 4px;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+  }
+
+  @media (max-width: 320px) {
+    margin-right: 10px;
+    gap: 3px;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
 `;
 
 const SearchContainer = styled.div`
@@ -110,7 +170,7 @@ function Navbar({ setDarkMode, onSearch, session, setSession }) {
 
   const handleProfileClick = () => {
     if (!session) {
-      navigate("/Login"); // 로그인되지 않은 경우 로그인 화면으로 이동
+      navigate("/Login");
       setIsDropdownOpen(false);
     }
   };
